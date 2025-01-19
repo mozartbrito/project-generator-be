@@ -24,7 +24,8 @@ export async function login(req: Request, res: Response) {
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-      res.json({ token });
+      const { password, ...userWithoutPassword } = user;
+      res.json({ token, user: userWithoutPassword });
     } else {
       res.status(401).json({ error: 'Invalid credentials' });
     }

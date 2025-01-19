@@ -24,7 +24,7 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
       await fs.writeFile(imagePath, image.buffer);
     }
 
-    const messages = [
+    const messages: { role: string; content: string; name?: string }[] = [
       { role: "system", content: "You are a helpful assistant that generates React code." },
       { role: "user", content: prompt }
     ];
@@ -33,16 +33,16 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
       const imageBase64 = image.buffer.toString('base64');
       messages.push({
         role: "user",
-        content: [
+        content: JSON.stringify([
           { type: "text", text: "Here's an image related to the code I want you to generate:" },
           { type: "image_url", image_url: `data:${image.mimetype};base64,${imageBase64}` }
-        ]
+        ])
       });
     }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4-vision-preview", // Make sure to use a model that supports image input
-      messages: messages,
+      messages,
       max_tokens: 1000,
     });
 
