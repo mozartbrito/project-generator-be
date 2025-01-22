@@ -1,36 +1,40 @@
-import dotenv from 'dotenv';
-import path from 'path';
+import dotenv from "dotenv"
+import path from "path"
 
 // Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, "../.env") })
 
 // Verify that the OPENAI_API_KEY is loaded
 if (!process.env.OPENAI_API_KEY) {
-  console.error('OPENAI_API_KEY is not set in the environment variables.');
-  process.exit(1);
+  console.error("OPENAI_API_KEY is not set in the environment variables.")
+  process.exit(1)
 }
 
 // Rest of your imports and code...
-import express from 'express';
-import cors from 'cors';
-import { userRouter } from './routes/userRoutes';
-import { codeGenerationRouter } from './routes/codeGenerationRoutes';
-import { setupDatabase } from './database/setup';
+import express from "express"
+import cors from "cors"
+import { userRouter } from "./routes/userRoutes"
+import { codeGenerationRouter } from "./routes/codeGenerationRoutes"
+import { setupDatabase } from "./database/setup"
+import { runMigrations } from "./database/migrations"
 
-const app = express();
-const port = process.env.PORT || 3001;
+const app = express()
+const port = process.env.PORT || 3001
 
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
 
-// Setup database
-setupDatabase();
+// Setup database and run migrations
+;(async () => {
+  const db = await setupDatabase()
+  await runMigrations(db)
+})()
 
 // Routes
-app.use('/api/users', userRouter);
-app.use('/api/code-generation', codeGenerationRouter);
+app.use("/api/users", userRouter)
+app.use("/api/code-generation", codeGenerationRouter)
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+  console.log(`Server is running on port ${port}`)
+})
 
