@@ -27,3 +27,6 @@ export const OPENAI_USER_PROMPT =
 
 export const OPENAI_USER_PROMPT_WITH_PREVIOUS_DESIGN =
 	'Your designers have just requested a wireframe for these designs. The designs also include some feedback and annotations on one or more of your previous creations. Respond the COMPLETE prototype as a single HTML file beginning with ```html and ending with ```'
+
+export const OPEN_AI_SYSTEM_PROMPT_EXPLAIN =
+  "You are a helpful assistant who will explain this code. Please provide clear and comprehensive explanations of the code structure and the main functionality that you previously generate. Give the answer using Portugal Portuguese. Please, do not give all details unecesserary, focus on the main functionality and the way that can help others to understand the code."
