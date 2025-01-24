@@ -48,8 +48,8 @@ Este guia irá orientá-lo através do processo de configuração do componente 
 ## Verificação da Instalação
 
 1. Abra um navegador ou use uma ferramenta como o Postman.
-2. Faça um pedido GET para `http://localhost:3001/api/health`.
-3. Deverá receber uma resposta com o status 200 e uma mensagem indicando que o servidor está a funcionar.
+2. Faça um pedido GET para `http://localhost:3001/api`.
+3. Deverá receber uma resposta com o status 404 e uma mensagem `Cannot GET /api` indicando que o servidor está a funcionar.
 
 ## Resolução de Problemas
 
