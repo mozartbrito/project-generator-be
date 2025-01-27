@@ -9,14 +9,21 @@ import {
 	OPENAI_USER_PROMPT,
 	OPENAI_USER_PROMPT_WITH_PREVIOUS_DESIGN,
 	OPEN_AI_SYSTEM_PROMPT,
-    OPEN_AI_SYSTEM_PROMPT_EXPLAIN,
+  OPEN_AI_SYSTEM_PROMPT_EXPLAIN,
 } from './prompts'
+
+type MessageContent = string | { type: string; text?: string; image_url?: { url: string } }[]
+
+interface Message {
+  role: string
+  content: MessageContent
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-export async function generateCode(req: AuthenticatedRequest, res: Response) {
+export const generateCode = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   const { prompt, code } = req.body
   const userId = req.userId
   const image = req.file
@@ -36,7 +43,7 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
       await fs.writeFile(imagePath, image.buffer)
     }
 
-    const messages = [
+    const messages: Message[] = [
       {
         role: "system",
         content: type === "explain" ? OPEN_AI_SYSTEM_PROMPT_EXPLAIN : OPEN_AI_SYSTEM_PROMPT
@@ -74,7 +81,7 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: messages,
+      messages: messages as any,
       max_tokens: 2000,
       temperature: 0.7,
     })
@@ -82,7 +89,7 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
     const generatedContent = completion.choices[0].message.content
 
     if (type === "explain") {
-        return res.json({ explanation: generatedContent })
+        res.json({ explanation: generatedContent })
     } else {
         // Save to database only for code generation, not for explanations
         await db.run("INSERT INTO code_generations (user_id, prompt, generated_code, image_path) VALUES (?, ?, ?, ?)", [
@@ -91,18 +98,18 @@ export async function generateCode(req: AuthenticatedRequest, res: Response) {
             generatedContent,
             imagePath,
         ])
-        return res.json({ code: generatedContent })
+        res.json({ code: generatedContent })
     }
     //return res.json({ code: generatedContent })
   } catch (error: any) {
     console.error("Error generating code or explanation:", error)
     if (error.message && error.message.includes("has been deprecated")) {
-        return res.status(500).json({
+        res.status(500).json({
         error: "The AI model is currently unavailable. Please try again later or contact support.",
         details: error.message,
       })
     } else {
-        return res.status(500).json({
+        res.status(500).json({
         error: "Error generating code or explanation. Please try again.",
         details: error.message,
       })

@@ -34,6 +34,7 @@ function setupDatabase() {
       user_id INTEGER,
       prompt TEXT,
       generated_code TEXT,
+      image_path TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id)
     );

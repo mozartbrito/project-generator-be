@@ -39,7 +39,9 @@ function login(req, res) {
             const user = yield db.get('SELECT * FROM users WHERE username = ?', [username]);
             if (user && (yield bcrypt_1.default.compare(password, user.password))) {
                 const token = jsonwebtoken_1.default.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-                res.json({ token });
+                res.json({ token, username: user.username }); // Include username in the response 
+                //const { password, ...userWithoutPassword } = user;
+                //res.json({ token, user: userWithoutPassword });
             }
             else {
                 res.status(401).json({ error: 'Invalid credentials' });

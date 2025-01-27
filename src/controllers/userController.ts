@@ -24,7 +24,7 @@ export async function login(req: Request, res: Response) {
     const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
     if (user && await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
-      res.json({ token, username: user.username }) 
+      res.json({ token, username: user.username }) // Include username in the response 
       //const { password, ...userWithoutPassword } = user;
       //res.json({ token, user: userWithoutPassword });
     } else {
